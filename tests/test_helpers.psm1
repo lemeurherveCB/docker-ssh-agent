@@ -77,8 +77,9 @@ function Cleanup($name='') {
     }
 
     if(![System.String]::IsNullOrWhiteSpace($name)) {
-        docker kill "$name" 2>&1 | Out-Null
-        docker rm -fv "$name" 2>&1 | Out-Null
+        # Ignore "no such container" — this is a best-effort pre-test cleanup
+        try { docker kill "$name" 2>&1 | Out-Null } catch {}
+        try { docker rm -fv "$name" 2>&1 | Out-Null } catch {}
     }
 }
 

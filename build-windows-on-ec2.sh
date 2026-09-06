@@ -749,6 +749,20 @@ if ($svc) {
     Start-Sleep -Seconds 5
     $status = (Get-Service sshd -ErrorAction SilentlyContinue).Status
     Write-Host "sshd status: $status"
+
+    # Install Windows Containers feature (required for Docker Engine).
+    # Must happen after sshd is configured so SSH is available after the reboot.
+    # The build script detects whether a reboot is still needed and re-polls SSH.
+    $feat = Get-WindowsFeature -Name Containers -ErrorAction SilentlyContinue
+    if ($feat -and -not $feat.Installed) {
+        Write-Host 'Installing Windows Containers feature (will reboot)...'
+        Install-WindowsFeature -Name Containers -ErrorAction SilentlyContinue
+        Write-Host 'Containers feature installation queued. Rebooting...'
+        Restart-Computer -Force
+    } else {
+        Write-Host 'Containers feature already installed (no reboot needed).'
+    }
+
     Write-Host 'Setup complete.'
 } else {
     Write-Host 'ERROR: sshd service not available after install attempt.'
@@ -858,6 +872,35 @@ ${SSH_READY} || { log "ERROR: SSH never became available."; _EXIT_CODE=1; exit 1
 log "SSH is ready."
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Ensure Windows Containers feature is installed (required for Docker Engine)
+# ──────────────────────────────────────────────────────────────────────────────
+log "Checking Windows Containers feature..."
+_containers_state=$(ssh_run "powershell -NonInteractive -NoProfile -Command \
+    \"try { if ((Get-WindowsFeature -Name Containers -ErrorAction Stop).Installed) {'yes'} else {'no'} } catch { 'unknown' }\"" \
+    2>/dev/null || echo "unknown")
+if [[ "${_containers_state}" != *yes* ]]; then
+    log "  Containers feature not installed (state=${_containers_state}) — installing and rebooting..."
+    ssh_run "powershell -NonInteractive -NoProfile -Command \
+        \"Install-WindowsFeature -Name Containers -ErrorAction Stop; Restart-Computer -Force\"" \
+        || true
+    log "  Waiting 90s for instance to restart..."
+    sleep 90
+    SSH_READY=false
+    for attempt in $(seq 1 40); do
+        if ssh_run "echo ready" > /dev/null 2>&1; then
+            SSH_READY=true
+            break
+        fi
+        log "    SSH attempt ${attempt}/40 after Containers reboot — retrying in 30s..."
+        sleep 30
+    done
+    ${SSH_READY} || { log "ERROR: SSH did not return after Containers reboot."; _EXIT_CODE=1; exit 1; }
+    log "  Instance back after Containers reboot."
+else
+    log "  Containers feature already installed."
+fi
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Install build dependencies
 # ──────────────────────────────────────────────────────────────────────────────
 log "Installing build dependencies (Docker ${DOCKER_VERSION}, yq, docker-compose, docker buildx)..."
@@ -921,6 +964,13 @@ Install-IfMissing `
     -Name 'docker buildx' `
     -Url 'https://github.com/docker/buildx/releases/download/v0.20.1/buildx-v0.20.1.windows-amd64.exe' `
     -Dest "$buildxDir\docker-buildx.exe"
+
+# Pre-install NuGet provider so Install-Module works in NonInteractive SSH sessions.
+# Without this, Install-Module (used by build.ps1 for Pester) triggers an interactive
+# ShouldContinue prompt that fails with "Windows PowerShell is in NonInteractive mode."
+Write-Host '==> Installing NuGet package provider...'
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
+Write-Host '    NuGet provider ready.'
 
 Write-Host ''
 Write-Host '==> Verifying tools...'
