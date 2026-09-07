@@ -60,10 +60,18 @@ ENV PATH="C:\Windows\system32;C:\Windows;${PSHOME};"
 COPY --from=jdk-pwsh /windows/system32/whoami.exe /windows/system32/whoami.exe
 COPY --from=jdk-pwsh $JAVA_HOME $JAVA_HOME
 COPY --from=jdk-pwsh /pwsh $PSHOME
-COPY --from=jdk-pwsh /windows/system32/netapi32.dll /windows/system32/netapi32.dll
+# nanoserver-ltsc2022 has no netapi32.dll; ltsc2025 has a protected stub.
+# COPY can't overwrite protected files, so stage to a temp path and move via RUN.
+COPY --from=jdk-pwsh /windows/system32/netapi32.dll C:/netapi32.dll
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 USER ContainerAdministrator
+
+RUN if (!(Test-Path 'C:\Windows\System32\netapi32.dll')) { `
+        Move-Item 'C:\netapi32.dll' 'C:\Windows\System32\netapi32.dll' `
+    } else { `
+        Remove-Item 'C:\netapi32.dll' `
+    }
 
 # Backward compatibility with version <= 5.x: create a symlink to the "new" JAVA_HOME
 RUN $javaMajorVersion = $env:JAVA_HOME.Substring($env:JAVA_HOME.Length - 2); `

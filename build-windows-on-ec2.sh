@@ -389,6 +389,11 @@ if [[ -n "${BAKE_TARGET}" ]]; then
     JAVA_RELEASES="${BASH_REMATCH[2]}"
 fi
 
+# Tee all output to a log file in /tmp for easier post-run inspection.
+LOG_FILE="/tmp/build-windows-on-ec2-${RUN_ID}.log"
+exec > >(tee "${LOG_FILE}") 2>&1
+echo "Log: ${LOG_FILE}"
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Prerequisites
 # ──────────────────────────────────────────────────────────────────────────────
