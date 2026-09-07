@@ -138,6 +138,7 @@ function Run-ThruSSH($container, $privateKeyVal, $cmd) {
     } else {
         $TMP_PRIV_KEY_FILE = New-TemporaryFile
         Set-Content -Path $TMP_PRIV_KEY_FILE -Value "$privateKeyVal"
+        icacls.exe $TMP_PRIV_KEY_FILE /inheritance:r /grant:r "${env:USERNAME}:(R)" | Out-Null
 
         $exitCode, $stdout, $stderr = Run-Program 'ssh.exe' "-v -i `"${TMP_PRIV_KEY_FILE}`" -o LogLevel=quiet -o UserKnownHostsFile=NUL -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o BatchMode=yes -l jenkins localhost -p $SSH_PORT $cmd"
         Remove-Item -Force $TMP_PRIV_KEY_FILE
