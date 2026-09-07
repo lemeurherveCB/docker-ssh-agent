@@ -141,63 +141,62 @@ Describe "[$global:IMAGE_TAG] image has expected tools versions installed and in
     }
 }
 
-## TODO: SSH tests temporarily disabled while debugging RSA key / sshd hang on nanoserver-ltsc2025.
-## Re-enable once the container SSH layer is confirmed working.
-# Describe "[$global:IMAGE_TAG] create agent container with pubkey as argument" {
-#     BeforeAll {
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
-#         $exitCode | Should -Be 0
-#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-#     }
-#
-#     It 'runs commands via ssh, container with pubkey as argument' {
-#         $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
-#         $exitCode | Should -Be 0
-#         $stdout | Should -Match 'f00'
-#     }
-#
-#     AfterAll {
-#         Cleanup($global:CONTAINERNAME)
-#     }
-# }
-#
-# Describe "[$global:IMAGE_TAG] create agent container with pubkey as envvar" {
-#     BeforeAll {
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
-#         $exitCode | Should -Be 0
-#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-#     }
-#
-#     It 'runs commands via ssh, container with pubkey as envvar' {
-#         $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
-#         $exitCode | Should -Be 0
-#         $stdout | Should -Match 'f00'
-#     }
-#
-#     AfterAll {
-#         Cleanup($global:CONTAINERNAME)
-#     }
-# }
-#
-# $global:DOCKER_PLUGIN_DEFAULT_ARG="/usr/sbin/sshd -D -p 22"
-# Describe "[$global:IMAGE_TAG] create agent container like docker-plugin with '$global:DOCKER_PLUGIN_DEFAULT_ARG' as argument" {
-#     BeforeAll {
-#         [string]::IsNullOrWhiteSpace($global:DOCKER_PLUGIN_DEFAULT_ARG) | Should -BeFalse
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all --env=`"JENKINS_AGENT_SSH_PUBKEY=$global:PUBLIC_SSH_KEY`" `"$global:IMAGE_NAME`" `"$global:DOCKER_PLUGIN_DEFAULT_ARG`""
-#         $exitCode | Should -Be 0
-#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-#     }
-#
-#     It 'runs commands via ssh, container like docker-plugin' {
-#         $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
-#         $exitCode | Should -Be 0
-#         $stdout | Should -Match 'f00'
-#     }
-#
-#     AfterAll {
-#         Cleanup($global:CONTAINERNAME)
-#     }
-# }
+Describe "[$global:IMAGE_TAG] create agent container with pubkey as argument" {
+    BeforeAll {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
+        $exitCode | Should -Be 0
+        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+    }
+
+    It 'runs commands via ssh, container with pubkey as argument' {
+        $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
+        $exitCode | Should -Be 0
+        $stdout | Should -Match 'f00'
+    }
+
+    AfterAll {
+        Cleanup($global:CONTAINERNAME)
+    }
+}
+
+Describe "[$global:IMAGE_TAG] create agent container with pubkey as envvar" {
+    BeforeAll {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
+        $exitCode | Should -Be 0
+        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+    }
+
+    It 'runs commands via ssh, container with pubkey as envvar' {
+        $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
+        $exitCode | Should -Be 0
+        $stdout | Should -Match 'f00'
+    }
+
+    AfterAll {
+        Cleanup($global:CONTAINERNAME)
+    }
+}
+
+
+$global:DOCKER_PLUGIN_DEFAULT_ARG="/usr/sbin/sshd -D -p 22"
+Describe "[$global:IMAGE_TAG] create agent container like docker-plugin with '$global:DOCKER_PLUGIN_DEFAULT_ARG' as argument" {
+    BeforeAll {
+        [string]::IsNullOrWhiteSpace($global:DOCKER_PLUGIN_DEFAULT_ARG) | Should -BeFalse
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all --env=`"JENKINS_AGENT_SSH_PUBKEY=$global:PUBLIC_SSH_KEY`" `"$global:IMAGE_NAME`" `"$global:DOCKER_PLUGIN_DEFAULT_ARG`""
+        $exitCode | Should -Be 0
+        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+    }
+
+    It 'runs commands via ssh, container like docker-plugin' {
+        $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
+        $exitCode | Should -Be 0
+        $stdout | Should -Match 'f00'
+    }
+
+    AfterAll {
+        Cleanup($global:CONTAINERNAME)
+    }
+}
 
 ## Commented out due to flakiness. TODO: re-enable and find why.
 # Describe "[$global:IMAGE_TAG] image can be built" {
