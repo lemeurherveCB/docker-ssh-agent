@@ -610,7 +610,9 @@ fi
 # ──────────────────────────────────────────────────────────────────────────────
 # Launch EC2 instance
 # ──────────────────────────────────────────────────────────────────────────────
-log "Launching Windows EC2 instance (type=${INSTANCE_TYPE}, AMI=${AMI_ID})..."
+if [[ -z "${RESUME_INSTANCE_ID}" ]]; then
+    log "Launching Windows EC2 instance (type=${INSTANCE_TYPE}, AMI=${AMI_ID})..."
+fi
 
 # User-data: minimal — sshd is intentionally NOT configured here.
 #
