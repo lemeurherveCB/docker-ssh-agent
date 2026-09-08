@@ -100,6 +100,11 @@ if(![System.String]::IsNullOrWhiteSpace($Cmd)) {
     }
 }
 
+# nanoserver:ltsc2025: HKLM\SECURITY is a volatile hive — the build-time write is
+# discarded on layer commit. Re-apply at every container start so sshd can create
+# S4U tokens for jenkins (STATUS_NO_SUCH_DOMAIN / 0xC00000DF without this).
+if (Test-Path C:/SetPrimaryDomain.ps1) { & C:/SetPrimaryDomain.ps1 }
+
 Start-Service sshd
 
 # dump network information

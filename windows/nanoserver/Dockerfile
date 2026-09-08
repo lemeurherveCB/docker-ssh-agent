@@ -76,12 +76,15 @@ RUN if (!(Test-Path 'C:\Windows\System32\netapi32.dll')) { `
 
 # nanoserver:ltsc2025 ships with an empty LSA Primary Domain name which breaks
 # LogonUser / S4U token creation with STATUS_NO_SUCH_DOMAIN (0xC00000DF / 1355).
-# LsaSetInformationPolicy is a silent no-op (HKLM\SECURITY has no backing store);
-# the fix writes "WORKGROUP" directly to HKLM\SECURITY\Policy\PolPrDmN as SYSTEM,
-# which requires a throwaway-service bootstrap (ContainerAdministrator is denied).
-# No-op on ltsc2022 (Primary Domain already set). Ref: microsoft/Windows-Containers#640
+# Fix: LsaSetInformationPolicy(PolicyPrimaryDomainInformation, "WORKGROUP") via P/Invoke
+# (requires SYSTEM, bootstrapped via a throwaway service). HKLM\SECURITY is a volatile
+# hive — the write is discarded on layer commit, so setup-sshd.ps1 re-applies at every
+# container start. No-op on ltsc2022 (Primary Domain already set).
+# Ref: microsoft/Windows-Containers#640
 COPY ./windows/nanoserver/SetPrimaryDomain.ps1 C:/SetPrimaryDomain.ps1
-RUN C:/SetPrimaryDomain.ps1 ; Remove-Item -Force C:/SetPrimaryDomain.ps1
+# Runs the fix at build time (smoke-test only — change is not persisted to the layer).
+# The script is kept in the image so setup-sshd.ps1 can call it at every container start.
+RUN C:/SetPrimaryDomain.ps1
 
 # Backward compatibility with version <= 5.x: create a symlink to the "new" JAVA_HOME
 RUN $javaMajorVersion = $env:JAVA_HOME.Substring($env:JAVA_HOME.Length - 2); `
