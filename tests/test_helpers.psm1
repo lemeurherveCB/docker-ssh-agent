@@ -77,8 +77,9 @@ function Cleanup($name='') {
     }
 
     if(![System.String]::IsNullOrWhiteSpace($name)) {
-        docker kill "$name" 2>&1 | Out-Null
-        docker rm -fv "$name" 2>&1 | Out-Null
+        # Ignore "no such container" — this is a best-effort pre-test cleanup
+        try { docker kill "$name" 2>&1 | Out-Null } catch {}
+        try { docker rm -fv "$name" 2>&1 | Out-Null } catch {}
     }
 }
 
@@ -97,7 +98,7 @@ function Is-ContainerRunning($container) {
     }
 }
 
-function Run-Program($cmd, $params) {
+function Run-Program($cmd, $params, [int]$timeoutMs = 120000) {
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.CreateNoWindow = $true
     $psi.UseShellExecute = $false
@@ -109,9 +110,16 @@ function Run-Program($cmd, $params) {
     $proc = New-Object System.Diagnostics.Process
     $proc.StartInfo = $psi
     [void]$proc.Start()
-    $stdout = $proc.StandardOutput.ReadToEnd()
-    $stderr = $proc.StandardError.ReadToEnd()
-    $proc.WaitForExit()
+    # Async reads avoid stdout/stderr pipe deadlock when both streams produce output
+    $stdoutTask = $proc.StandardOutput.ReadToEndAsync()
+    $stderrTask = $proc.StandardError.ReadToEndAsync()
+    if (-not $proc.WaitForExit($timeoutMs)) {
+        Write-Host -ForegroundColor DarkYellow "[timeout] $cmd $params (killed after ${timeoutMs}ms)"
+        $proc.Kill()
+        $proc.WaitForExit()
+    }
+    $stdout = $stdoutTask.GetAwaiter().GetResult()
+    $stderr = $stderrTask.GetAwaiter().GetResult()
     if(($env:TESTS_DEBUG -eq 'debug') -or ($env:TESTS_DEBUG -eq 'verbose') -or ($proc.ExitCode -ne 0)) {
         Write-Host -ForegroundColor DarkBlue "[cmd] $cmd $params"
         if ($env:TESTS_DEBUG -ne 'debug') { Write-Host -ForegroundColor DarkGray "[stdout] $stdout" }
@@ -138,7 +146,9 @@ function Run-ThruSSH($container, $privateKeyVal, $cmd) {
         $TMP_PRIV_KEY_FILE = New-TemporaryFile
         Set-Content -Path $TMP_PRIV_KEY_FILE -Value "$privateKeyVal"
 
-        $exitCode, $stdout, $stderr = Run-Program 'ssh.exe' "-v -i `"${TMP_PRIV_KEY_FILE}`" -o LogLevel=quiet -o UserKnownHostsFile=NUL -o StrictHostKeyChecking=no -l jenkins localhost -p $SSH_PORT $cmd"
+        icacls.exe $TMP_PRIV_KEY_FILE /inheritance:r /grant:r "${env:USERNAME}:(R)" | Out-Null
+
+        $exitCode, $stdout, $stderr = Run-Program 'ssh.exe' "-4 -v -i `"${TMP_PRIV_KEY_FILE}`" -o LogLevel=quiet -o UserKnownHostsFile=NUL -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o BatchMode=yes -o ServerAliveInterval=10 -o ServerAliveCountMax=3 -l jenkins 127.0.0.1 -p $SSH_PORT $cmd" 120000
         Remove-Item -Force $TMP_PRIV_KEY_FILE
 
         return $exitCode, $stdout, $stderr
