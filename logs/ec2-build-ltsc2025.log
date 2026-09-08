@@ -1,0 +1,134 @@
+[02:16:39] Checking prerequisites...
+[02:16:40] Prerequisites OK.
+[02:16:40] Resuming instance i-0689a03f3a7f4bafc...
+[02:16:41]   Instance already running.
+[02:16:42]   Instance at 54.158.163.233
+[02:16:43] Run ID: build-windows-on-ec2.sh-1788730558
+[02:16:47]   EIC endpoint: eice-0969b788085e51fc4
+[02:16:47] Launching Windows EC2 instance (type=m5.xlarge, AMI=ami-05b8af58f7410b671)...
+[02:16:47] ──────────────────────────────────────────────────────
+[02:16:47] AWS resources for this run (BuildRunId=build-windows-on-ec2.sh-1788730558):
+[02:16:47]   EC2 instance   : i-0689a03f3a7f4bafc  (stop on exit; --delete to remove all)
+[02:16:47] 
+[02:16:47]   To reuse this instance next run:
+[02:16:47]     /Users/hlemeur/work/docker-ssh-agent/build-windows-on-ec2.sh i-0689a03f3a7f4bafc ...
+[02:16:47]   To remove all resources after this run:
+[02:16:47]     /Users/hlemeur/work/docker-ssh-agent/build-windows-on-ec2.sh --delete i-0689a03f3a7f4bafc
+[02:16:47] ──────────────────────────────────────────────────────
+[02:16:47] Waiting for EIC endpoint eice-0969b788085e51fc4...
+[02:16:48]   EIC endpoint ready.
+[02:16:48] Waiting for SSH (Windows boot takes several minutes after status check)...
+[02:16:51] SSH is ready.
+[02:16:51] Checking Windows Containers feature...
+[02:16:54]   Containers feature already installed.
+[02:16:54] Installing build dependencies (Docker 27.5.1, yq, docker-compose, docker buildx)...
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+==> Docker already present: C:\Program Files\docker
+==> yq already present: C:\Windows\System32\yq.exe
+==> docker-compose already present: C:\Windows\System32\docker-compose.exe
+==> docker buildx already present: C:\ProgramData\docker\cli-plugins\docker-buildx.exe
+==> Installing NuGet package provider...
+    NuGet provider ready.
+
+==> Verifying tools...
+Client:
+ Version:           27.5.1
+ API version:       1.47
+ Go version:        go1.22.11
+
+Docker Compose version v2.32.4
+github.com/docker/buildx v0.20.1 245093b99ab74aa2c729a496759afca0704d6470
+yq (https://github.com/mikefarah/yq/) version v4.44.3
+
+==> All dependencies ready.
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+[02:17:09] Packaging repository...
+[02:17:10] Repository packaged: 4.8M
+[02:17:10] Uploading to 54.158.163.233...
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+[02:17:19] Extracting on remote...
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+Continue=Stop : The term 'Continue=Stop' is not recognized as the name of a cmdlet, function, 
+script file, or operable program. Check the spelling of the name, or if a path was included, 
+verify that the path is correct and try again.
+At line:1 char:5
++     Continue='Stop';     if (Test-Path 'C:/docker-ssh-agent') { Remov ...
++     ~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (Continue=Stop:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+Remove-Item : Cannot remove item C:\docker-ssh-agent: The process cannot access the file 
+'C:\docker-ssh-agent' because it is being used by another process.
+At line:1 char:65
++ ... h-agent') { Remove-Item -Recurse -Force 'C:/docker-ssh-agent' };      ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : WriteError: (C:\docker-ssh-agent:DirectoryInfo) [Remove-Item], IOEx 
+   ception
+    + FullyQualifiedErrorId : RemoveFileSystemItemIOError,Microsoft.PowerShell.Commands.RemoveIte 
+   mCommand
+New-Item : An item with the specified name C:\docker-ssh-agent already exists.
+At line:1 char:122
++ ... ent' };     New-Item -ItemType Directory -Path 'C:/docker-ssh-agent'  ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ResourceExists: (C:\docker-ssh-agent:String) [New-Item], IOExceptio 
+   n
+    + FullyQualifiedErrorId : DirectoryExist,Microsoft.PowerShell.Commands.NewItemCommand
+ 
+Repository extracted.
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+[02:17:26] Starting build + test loop (IMAGE_TYPES='nanoserver-ltsc2025', JAVA_RELEASES='21')...
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+
+============================================================
+BUILD  image_type=nanoserver-ltsc2025  java_release=21
+============================================================
+= PREPARE: Initialize the docker compose file 'build-windows.yaml' containing the image definitions.
+= PREPARE: Docker compose file generation command
+ docker buildx bake --progress=plain --file=docker-bake.hcl nanoserver --print | yq --prettyPrint '.target[] | del(.output) | {(. | key): {\"image\": .tags[0], \"build\": .}}' | yq '{\"services\": .}' | Out-File -FilePath build-windows.yaml
+#1 [internal] load local bake definitions
+#1 reading docker-bake.hcl 6.92kB / 6.92kB done
+#1 DONE 0.0s
+= PREPARE: List of images and tags to be processed:
+name: docker-ssh-agent
+services:
+  nanoserver-ltsc2025_jdk21:
+    build:
+      context: C:\docker-ssh-agent
+      dockerfile: windows/nanoserver/Dockerfile
+      args:
+        JAVA_RELEASE: "21"
+        WINDOWS_VERSION_TAG: ltsc2025
+      tags:
+        - docker.io/jenkins/ssh-agent:nanoserver-ltsc2025-jdk21
+      platforms:
+        - windows/amd64
+    image: docker.io/jenkins/ssh-agent:nanoserver-ltsc2025-jdk21
+    networks:
+      default: null
+networks:
+  default:
+    name: docker-ssh-agent_default
+= BUILD: Building all images...
+ Service nanoserver-ltsc2025_jdk21  Building
+Sending build context to Docker daemon  524.4kBSending build context to Docker daemon  1.049MBSending build context to Docker daemon  1.573MBSending build context to Docker daemon  2.098MBSending build context to Docker daemon  2.622MBSending build context to Docker daemon  3.146MBSending build context to Docker daemon  4.195MBSending build context to Docker daemon  5.044MB
+Step 1/45 : ARG WINDOWS_VERSION_TAG
+Step 2/45 : FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS jdk-pwsh
+ltsc2025: Pulling from windows/servercore
+
+[1A[2K97e96e9cbeb1: Pulling fs layer [1B
+[1A[2K26f730467be2: Pulling fs layer [1B[2A[2K97e96e9cbeb1: Downloading [>                                                  ]  538.7kB/1.482GB[2B[1A[2K26f730467be2: Downloading [>                                                  ]  538.7kB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [>                                                  ]  15.66MB/1.482GB[2B[1A[2K26f730467be2: Downloading [>                                                  ]   16.2MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=>                                                 ]  31.88MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=>                                                 ]  32.42MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=>                                                 ]  47.56MB/1.482GB[2B[1A[2K26f730467be2: Downloading [==>                                                ]  48.64MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [==>                                                ]  63.24MB/1.482GB[2B[1A[2K26f730467be2: Downloading [===>                                               ]  64.32MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [==>                                                ]  78.92MB/1.482GB[2B[1A[2K26f730467be2: Downloading [====>                                              ]     80MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [===>                                               ]   94.6MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=====>                                             ]  95.68MB/898MB[1B[1A[2K26f730467be2: Downloading [======>                                            ]  111.4MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [===>                                               ]  110.8MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=======>                                           ]    127MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [====>                                              ]  126.5MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=======>                                           ]  142.7MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [====>                                              ]  142.7MB/1.482GB[2B[1A[2K26f730467be2: Downloading [========>                                          ]  158.4MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=====>                                             ]  158.4MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=========>                                         ]  174.6MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=====>                                             ]  174.1MB/1.482GB[2B[1A[2K26f730467be2: Downloading [==========>                                        ]  190.8MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [======>                                            ]  189.8MB/1.482GB[2B[1A[2K26f730467be2: Downloading [===========>                                       ]  206.5MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [======>                                            ]  205.4MB/1.482GB[2B[1A[2K26f730467be2: Downloading [============>                                      ]  222.2MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=======>                                           ]  221.7MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=============>                                     ]  238.4MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [========>                                          ]  238.4MB/1.482GB[2B[1A[2K26f730467be2: Downloading [==============>                                    ]  254.6MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [========>                                          ]  254.6MB/1.482GB[2B[1A[2K26f730467be2: Downloading [===============>                                   ]  270.3MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=========>                                         ]  270.9MB/1.482GB[2B[1A[2K26f730467be2: Downloading [===============>                                   ]    286MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=========>                                         ]  287.1MB/1.482GB[2B[1A[2K26f730467be2: Downloading [================>                                  ]  302.2MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [==========>                                        ]  303.3MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=================>                                 ]  317.4MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [==========>                                        ]    319MB/1.482GB[2B[1A[2K26f730467be2: Downloading [==================>                                ]    333MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [===========>                                       ]  334.7MB/1.482GB[2B[1A[2K26f730467be2: Downloading [===================>                               ]  349.3MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [===========>                                       ]  350.3MB/1.482GB[2B[1A[2K26f730467be2: Downloading [====================>                              ]  365.5MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [============>                                      ]  366.6MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=====================>                             ]  381.7MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [============>                                      ]  382.2MB/1.482GB[2B[1A[2K26f730467be2: Downloading [======================>                            ]  398.5MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=============>                                     ]  396.3MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=======================>                           ]  414.1MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=============>                                     ]    412MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=======================>                           ]  430.4MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [==============>                                    ]  428.2MB/1.482GB[2B[1A[2K26f730467be2: Downloading [========================>                          ]  446.6MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [==============>                                    ]  443.9MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=========================>                         ]  462.3MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [===============>                                   ]  459.6MB/1.482GB[2B[2A[2K97e96e9cbeb1: Downloading [================>                                  ]  475.2MB/1.482GB[2B[1A[2K26f730467be2: Downloading [==========================>                        ]  478.5MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [================>                                  ]  491.5MB/1.482GB[2B[1A[2K26f730467be2: Downloading [===========================>                       ]  494.7MB/898MB[1B[1A[2K26f730467be2: Downloading [============================>                      ]  510.4MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=================>                                 ]  507.1MB/1.482GB[2B[1A[2K26f730467be2: Downloading [============================>                      ]    519MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=================>                                 ]  524.4MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=============================>                     ]  534.7MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [==================>                                ]  540.1MB/1.482GB[2B[1A[2K26f730467be2: Downloading [==============================>                    ]  550.4MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [==================>                                ]  556.3MB/1.482GB[2B[1A[2K26f730467be2: Downloading [===============================>                   ]  566.1MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [===================>                               ]  572.6MB/1.482GB[2B[1A[2K26f730467be2: Downloading [================================>                  ]  581.7MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [===================>                               ]  588.2MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=================================>                 ]    598MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [====================>                              ]  604.5MB/1.482GB[2B[1A[2K26f730467be2: Downloading [==================================>                ]  613.6MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [====================>                              ]  620.7MB/1.482GB[2B[1A[2K26f730467be2: Downloading [===================================>               ]  629.3MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=====================>                             ]  636.9MB/1.482GB[2B[1A[2K26f730467be2: Downloading [===================================>               ]  644.5MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [======================>                            ]  652.6MB/1.482GB[2B[1A[2K26f730467be2: Downloading [====================================>              ]  660.1MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [======================>                            ]  668.8MB/1.482GB[2B[2A[2K97e96e9cbeb1: Downloading [=======================>                           ]    685MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=====================================>             ]  676.4MB/898MB[1B[1A[2K26f730467be2: Downloading [======================================>            ]    692MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=======================>                           ]  701.2MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=======================================>           ]  707.7MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [========================>                          ]  716.9MB/1.482GB[2B[2A[2K97e96e9cbeb1: Downloading [========================>                          ]  732.6MB/1.482GB[2B[1A[2K26f730467be2: Downloading [========================================>          ]  723.9MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=========================>                         ]  748.3MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=========================================>         ]  739.6MB/898MB[1B[1A[2K26f730467be2: Downloading [==========================================>        ]  755.3MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=========================>                         ]  764.5MB/1.482GB[2B[1A[2K26f730467be2: Downloading [==========================================>        ]    771MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [==========================>                        ]  780.2MB/1.482GB[2B[1A[2K26f730467be2: Downloading [===========================================>       ]  786.7MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [==========================>                        ]  796.4MB/1.482GB[2B[2A[2K97e96e9cbeb1: Downloading [===========================>                       ]  812.1MB/1.482GB[2B[1A[2K26f730467be2: Downloading [============================================>      ]  802.3MB/898MB[1B[1A[2K26f730467be2: Downloading [=============================================>     ]    818MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [===========================>                       ]  828.3MB/1.482GB[2B[1A[2K26f730467be2: Downloading [==============================================>    ]  833.7MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [============================>                      ]  844.5MB/1.482GB[2B[1A[2K26f730467be2: Downloading [===============================================>   ]  849.9MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=============================>                     ]  860.7MB/1.482GB[2B[1A[2K26f730467be2: Downloading [================================================>  ]  865.6MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [=============================>                     ]    877MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=================================================> ]  881.3MB/898MB[1B[2A[2K97e96e9cbeb1: Downloading [==============================>                    ]  892.6MB/1.482GB[2B[1A[2K26f730467be2: Downloading [=================================================> ]  897.5MB/898MB[1B[1A[2K26f730467be2: Verifying Checksum [1B[1A[2K26f730467be2: Download complete [1B[2A[2K97e96e9cbeb1: Downloading [==============================>                    ]  908.9MB/1.482GB[2B[2A[2K97e96e9cbeb1: Downloading [===============================>                   ]  928.3MB/1.482GB[2B[2A[2K97e96e9cbeb1: Downloading [===============================>                   ]  947.8MB/1.482GB[2B[2A[2K97e96e9cbeb1: Downloading [================================>                  ]  965.1MB/1.482GB[2B[2A[2K97e96e9cbeb1: Downloading [=================================>                 ]  984.5MB/1.482GB[2B[2A[2K97e96e9cbeb1: Downloading [=================================>                 ]  1.004GB/1.482GB[2B[2A[2K97e96e9cbeb1: Downloading [==================================>                ]  1.023GB/1.482GB[2B[2A[2K97e96e9cbeb1: Downloading [===================================>               ]  1.043GB/1.482GB[2B[2A[2K97e96e9cbeb1: Downloading [===================================>               ]  1.063GB/1.482GB[2B

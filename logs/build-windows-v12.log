@@ -1,0 +1,317 @@
+[01:42:57] Checking prerequisites...
+[01:42:58] Prerequisites OK.
+[01:42:58] Resuming instance i-0689a03f3a7f4bafc...
+[01:42:59]   Instance is stopped — starting...
+[01:43:01]   Waiting for instance to reach 'running' state...
+[01:43:18]   Waiting for instance status checks (2/2)...
+[01:46:52]   Instance at 54.158.163.233
+[01:46:53] Run ID: build-windows-on-ec2.sh-1788730558
+[01:46:57]   EIC endpoint: eice-0969b788085e51fc4
+[01:46:57] Launching Windows EC2 instance (type=m5.xlarge, AMI=ami-05b8af58f7410b671)...
+[01:46:57] ──────────────────────────────────────────────────────
+[01:46:57] AWS resources for this run (BuildRunId=build-windows-on-ec2.sh-1788730558):
+[01:46:57]   EC2 instance   : i-0689a03f3a7f4bafc  (stop on exit; --delete to remove all)
+[01:46:57] 
+[01:46:57]   To reuse this instance next run:
+[01:46:57]     ./build-windows-on-ec2.sh i-0689a03f3a7f4bafc ...
+[01:46:57]   To remove all resources after this run:
+[01:46:57]     ./build-windows-on-ec2.sh --delete i-0689a03f3a7f4bafc
+[01:46:57] ──────────────────────────────────────────────────────
+[01:46:57] Waiting for EIC endpoint eice-0969b788085e51fc4...
+[01:46:58]   EIC endpoint ready.
+[01:46:58] Waiting for SSH (Windows boot takes several minutes after status check)...
+[01:47:01] SSH is ready.
+[01:47:01] Checking Windows Containers feature...
+[01:47:05]   Containers feature already installed.
+[01:47:05] Installing build dependencies (Docker 27.5.1, yq, docker-compose, docker buildx)...
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+==> Docker already present: C:\Program Files\docker
+==> yq already present: C:\Windows\System32\yq.exe
+==> docker-compose already present: C:\Windows\System32\docker-compose.exe
+==> docker buildx already present: C:\ProgramData\docker\cli-plugins\docker-buildx.exe
+==> Installing NuGet package provider...
+    NuGet provider ready.
+
+==> Verifying tools...
+Client:
+ Version:           27.5.1
+ API version:       1.47
+ Go version:        go1.22.11
+
+Docker Compose version v2.32.4
+github.com/docker/buildx v0.20.1 245093b99ab74aa2c729a496759afca0704d6470
+yq (https://github.com/mikefarah/yq/) version v4.44.3
+
+==> All dependencies ready.
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+[01:47:24] Packaging repository...
+[01:47:24] Repository packaged: 4.8M
+[01:47:24] Uploading to 54.158.163.233...
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+[01:47:33] Extracting on remote...
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+Continue=Stop : The term 'Continue=Stop' is not recognized as the name of a cmdlet, function, 
+script file, or operable program. Check the spelling of the name, or if a path was included, 
+verify that the path is correct and try again.
+At line:1 char:5
++     Continue='Stop';     if (Test-Path 'C:/docker-ssh-agent') { Remov ...
++     ~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (Continue=Stop:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+Repository extracted.
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+[01:47:40] Starting build + test loop (IMAGE_TYPES='nanoserver-ltsc2022', JAVA_RELEASES='25')...
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html
+
+============================================================
+BUILD  image_type=nanoserver-ltsc2022  java_release=25
+============================================================
+= PREPARE: Initialize the docker compose file 'build-windows.yaml' containing the image definitions.
+= PREPARE: Docker compose file generation command
+ docker buildx bake --progress=plain --file=docker-bake.hcl nanoserver --print | yq --prettyPrint '.target[] | del(.output) | {(. | key): {\"image\": .tags[0], \"build\": .}}' | yq '{\"services\": .}' | Out-File -FilePath build-windows.yaml
+#1 [internal] load local bake definitions
+#1 reading docker-bake.hcl 6.92kB / 6.92kB done
+#1 DONE 0.0s
+= PREPARE: List of images and tags to be processed:
+name: docker-ssh-agent
+services:
+  nanoserver-ltsc2022_jdk25:
+    build:
+      context: C:\docker-ssh-agent
+      dockerfile: windows/nanoserver/Dockerfile
+      args:
+        JAVA_RELEASE: "25"
+        WINDOWS_VERSION_TAG: ltsc2022
+      tags:
+        - docker.io/jenkins/ssh-agent:nanoserver-ltsc2022-jdk25
+      platforms:
+        - windows/amd64
+    image: docker.io/jenkins/ssh-agent:nanoserver-ltsc2022-jdk25
+    networks:
+      default: null
+networks:
+  default:
+    name: docker-ssh-agent_default
+= BUILD: Building all images...
+ Service nanoserver-ltsc2022_jdk25  Building
+Sending build context to Docker daemon  524.4kBSending build context to Docker daemon  1.049MBSending build context to Docker daemon  1.573MBSending build context to Docker daemon  2.098MBSending build context to Docker daemon  2.622MBSending build context to Docker daemon  3.146MBSending build context to Docker daemon  4.195MBSending build context to Docker daemon  5.048MB
+Step 1/45 : ARG WINDOWS_VERSION_TAG
+Step 2/45 : FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS jdk-pwsh
+ltsc2022: Pulling from windows/servercore
+Digest: sha256:0df5b1c3394198525f426e379b61d8f09ce60cb449b1cb4cab163e965672cd67
+Status: Image is up to date for mcr.microsoft.com/windows/servercore:ltsc2022
+ ---> f02b623bbbc1
+Step 3/45 : SHELL ["powershell.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+ ---> Using cache
+ ---> 509a86d3ad2a
+Step 4/45 : ARG JAVA_RELEASE
+ ---> Using cache
+ ---> e5b62dcf4a10
+Step 5/45 : ENV JAVA_HOME="C:/openjdk-${JAVA_RELEASE}"
+ ---> Using cache
+ ---> 5b06527975b3
+Step 6/45 : COPY ./adoptium/jdk_installers.txt "C:\jdk_installers.txt"
+ ---> Using cache
+ ---> 97c03b5dd192
+Step 7/45 : RUN $jdkTemp = 'C:\jdktemp' ;     $zip = Join-Path $jdkTemp 'jdk.zip' ;     New-Item -ItemType Directory -Path $jdkTemp | Out-Null ;     $url = (Get-Content .\jdk_installers.txt | Where-Object { $_ -match ('jdk{0}/windows/amd64' -f $env:JAVA_RELEASE) } | Select-Object -First 1).Split(' ')[1] ;      Invoke-WebRequest $url -OutFile $zip ;     Expand-Archive -Path $zip -DestinationPath $jdkTemp ;     $expandedDir = Get-ChildItem -Path $jdkTemp -Directory | Where-Object { $_.Name -like 'jdk*' } ;     Move-Item -Path $expandedDir.FullName -Destination $env:JAVA_HOME -Force
+ ---> Using cache
+ ---> fb0dbbe4dcbf
+Step 8/45 : ARG PWSH_VERSION=7.6.5
+ ---> Using cache
+ ---> e66a5f9f46d2
+Step 9/45 : RUN $zip = Join-Path $env:TEMP "pwsh.zip" ;     $dest = 'C:\pwsh' ;     $url = 'https://github.com/PowerShell/PowerShell/releases/download/v{0}/PowerShell-{0}-win-x64.zip' -f $env:PWSH_VERSION ;     Invoke-WebRequest -Uri $url -OutFile $zip ;     New-Item -ItemType Directory -Path $dest -Force | Out-Null ;     Expand-Archive -Path $zip -DestinationPath $dest ;     Remove-Item -Path $zip
+ ---> Using cache
+ ---> fc57b4f64f3a
+Step 10/45 : FROM mcr.microsoft.com/windows/nanoserver:"${WINDOWS_VERSION_TAG}"
+ltsc2022: Pulling from windows/nanoserver
+Digest: sha256:e4ce8c20390c3785c3cbeef15c579d186b3599d37525c596590cf4508e38d3ff
+Status: Image is up to date for mcr.microsoft.com/windows/nanoserver:ltsc2022
+ ---> dde9e968b229
+Step 11/45 : ARG JAVA_RELEASE
+ ---> Using cache
+ ---> 9a2ecb071eab
+Step 12/45 : ENV JAVA_HOME="C:/openjdk-${JAVA_RELEASE}"
+ ---> Using cache
+ ---> c74d8d9f1e7b
+Step 13/45 : ENV PSHOME="C:\Program Files\PowerShell"
+ ---> Using cache
+ ---> 807a2dfbcd19
+Step 14/45 : ENV PATH="C:\Windows\system32;C:\Windows;${PSHOME};"
+ ---> Using cache
+ ---> 74dcad5ed188
+Step 15/45 : COPY --from=jdk-pwsh /windows/system32/whoami.exe /windows/system32/whoami.exe
+ ---> Using cache
+ ---> 8124d80b318e
+Step 16/45 : COPY --from=jdk-pwsh $JAVA_HOME $JAVA_HOME
+ ---> Using cache
+ ---> c1aac66a0cff
+Step 17/45 : COPY --from=jdk-pwsh /pwsh $PSHOME
+ ---> Using cache
+ ---> 7584ff4e21ac
+Step 18/45 : COPY --from=jdk-pwsh /windows/system32/netapi32.dll C:/netapi32.dll
+ ---> Using cache
+ ---> 4fb889c5d116
+Step 19/45 : SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+ ---> Using cache
+ ---> 2ce6069b5f0d
+Step 20/45 : USER ContainerAdministrator
+ ---> Using cache
+ ---> 692e2acb3f2d
+Step 21/45 : RUN if (!(Test-Path 'C:\Windows\System32\netapi32.dll')) {         Move-Item 'C:\netapi32.dll' 'C:\Windows\System32\netapi32.dll'     } else {         Remove-Item 'C:\netapi32.dll'     }
+ ---> Using cache
+ ---> d0d23adfa8de
+Step 22/45 : RUN $javaMajorVersion = $env:JAVA_HOME.Substring($env:JAVA_HOME.Length - 2);     New-Item -Path "C:\jdk-${javaMajorVersion}" -ItemType SymbolicLink -Value "${env:JAVA_HOME}"
+ ---> Using cache
+ ---> 6af3a39f0974
+Step 23/45 : ARG GIT_VERSION=2.55.0
+ ---> Using cache
+ ---> 341d29c52799
+Step 24/45 : ARG GIT_PATCH_VERSION=5
+ ---> Using cache
+ ---> c1b324549b83
+Step 25/45 : RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ;     if($env:GIT_PATCH_VERSION -eq 1) { $url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION); }     else {$url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}.{1}-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION)} ;     Write-Host "Retrieving $url..." ;     Invoke-WebRequest $url -OutFile 'mingit.zip' -UseBasicParsing ;     Expand-Archive mingit.zip -DestinationPath c:\mingit ;     Remove-Item mingit.zip -Force
+ ---> Using cache
+ ---> f292d2ce8e57
+Step 26/45 : ENV ProgramFiles="C:\Program Files"
+ ---> Using cache
+ ---> 6db2401c2dfd
+Step 27/45 : ENV WindowsPATH="C:\Windows\system32;C:\Windows"
+ ---> Using cache
+ ---> cb8f1b780434
+Step 28/45 : ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
+ ---> Using cache
+ ---> 81a7910ffb75
+Step 29/45 : ARG GIT_LFS_VERSION=3.8.0
+ ---> Using cache
+ ---> e85f7defe81e
+Step 30/45 : RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ;     $url = $('https://github.com/git-lfs/git-lfs/releases/download/v{0}/git-lfs-windows-amd64-v{0}.zip' -f $env:GIT_LFS_VERSION) ;     Write-Host "Retrieving $url..." ;     Invoke-WebRequest $url -OutFile 'GitLfs.zip' -UseBasicParsing ;     Expand-Archive GitLfs.zip -DestinationPath c:\mingit\mingw64\bin ;     $gitLfsFolder = 'c:\mingit\mingw64\bin\git-lfs-{0}' -f $env:GIT_LFS_VERSION ;     Move-Item -Path "${gitLfsFolder}\git-lfs.exe" -Destination c:\mingit\mingw64\bin\ ;     Remove-Item -Path $gitLfsFolder -Recurse -Force ;     Remove-Item GitLfs.zip -Force ;     & C:\mingit\cmd\git.exe lfs install
+ ---> Using cache
+ ---> c50a1c7dd872
+Step 31/45 : ARG user=jenkins
+ ---> Using cache
+ ---> 53345656bb09
+Step 32/45 : ARG JENKINS_AGENT_WORK="C:/Users/${user}/Work"
+ ---> Using cache
+ ---> d13ac79e9c89
+Step 33/45 : ENV JENKINS_AGENT_USER=${user}
+ ---> Using cache
+ ---> 7c0c37228fdc
+Step 34/45 : ENV JENKINS_AGENT_WORK=${JENKINS_AGENT_WORK}
+ ---> Using cache
+ ---> 259bdf18a7c9
+Step 35/45 : ARG OPENSSH_VERSION=10.0.0.0p2-Preview
+ ---> Using cache
+ ---> d5832806c7df
+Step 36/45 : RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ;     $url = 'https://github.com/PowerShell/Win32-OpenSSH/releases/download/{0}/OpenSSH-Win64.zip' -f $env:OPENSSH_VERSION ;     Write-Host "Retrieving $url..." ;     Invoke-WebRequest -Uri $url -OutFile C:/openssh.zip -UseBasicParsing ;     Expand-Archive c:/openssh.zip 'C:/Program Files' ;     Remove-Item C:/openssh.zip ;     $env:PATH = '{0};{1}' -f $env:PATH,'C:\Program Files\OpenSSH-Win64' ;     if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\ProgramData\ssh' | Out-Null } ;     icacls 'C:\ProgramData\ssh' /inheritance:d ;     icacls 'C:\ProgramData\ssh' /remove 'CREATOR OWNER' ;     & 'C:/Program Files/OpenSSH-Win64/Install-SSHd.ps1' ;     Copy-Item 'C:\Program Files\OpenSSH-Win64\sshd_config_default' 'C:\ProgramData\ssh\sshd_config' ;     $content = Get-Content -Path "C:\ProgramData\ssh\sshd_config" ;     $content | ForEach-Object { $_ -replace '#PermitRootLogin.*','PermitRootLogin no'                         -replace '#PasswordAuthentication.*','PasswordAuthentication no'                         -replace '#PermitEmptyPasswords.*','PermitEmptyPasswords no'                         -replace '#PubkeyAuthentication.*','PubkeyAuthentication yes'                         -replace '#SyslogFacility.*','SyslogFacility LOCAL0'                         -replace '#LogLevel.*','LogLevel INFO'                         -replace 'Match Group administrators',''                         -replace '(\s*)AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys',''                 } |     Set-Content -Path "C:\ProgramData\ssh\sshd_config" ;     Add-Content -Path "C:\ProgramData\ssh\sshd_config" -Value 'ChallengeResponseAuthentication no' ;     Add-Content -Path "C:\ProgramData\ssh\sshd_config" -Value 'HostKeyAgent \\.\pipe\openssh-ssh-agent' ;     Add-Content -Path "C:\ProgramData\ssh\sshd_config" -Value ('Match User {0}' -f $env:JENKINS_AGENT_USER) ;     Add-Content -Path "C:\ProgramData\ssh\sshd_config" -Value ('       AuthorizedKeysFile C:/Users/{0}/.ssh/authorized_keys' -f $env:JENKINS_AGENT_USER) ;     New-Item -Path HKLM:\SOFTWARE -Name OpenSSH -Force | Out-Null ;     New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value 'C:\Program Files\Powershell\pwsh.exe' -PropertyType string -Force | Out-Null ;     Remove-Item -Path "C:\ProgramData\ssh\ssh_host*_key*"
+ ---> Using cache
+ ---> e83bd7629b5c
+Step 37/45 : COPY CreateProfile.psm1 C:/
+ ---> Using cache
+ ---> 972290941927
+Step 38/45 : RUN Import-Module -Force C:/CreateProfile.psm1 ;     New-UserWithProfile -UserName $env:JENKINS_AGENT_USER -Description 'Jenkins Agent User' ;     Remove-Item -Force C:/CreateProfile.psm1
+ ---> Using cache
+ ---> 0f0cded6558c
+Step 39/45 : VOLUME "${JENKINS_AGENT_WORK}" "C:/Users/${user}/AppData/Local/Temp"
+ ---> Using cache
+ ---> 4ff448b71748
+Step 40/45 : WORKDIR "${JENKINS_AGENT_WORK}"
+ ---> Using cache
+ ---> a3177412a4ad
+Step 41/45 : COPY setup-sshd.ps1 C:/ProgramData/Jenkins/setup-sshd.ps1
+ ---> Using cache
+ ---> ce6a8baa4aaf
+Step 42/45 : EXPOSE 22
+ ---> Using cache
+ ---> d1d15e13dccf
+Step 43/45 : LABEL     org.opencontainers.image.vendor="Jenkins project"     org.opencontainers.image.title="Official Jenkins SSH Agent Docker image"     org.opencontainers.image.description="A Jenkins agent image which allows using SSH to establish the connection"     org.opencontainers.image.url="https://www.jenkins.io/"     org.opencontainers.image.source="https://github.com/jenkinsci/docker-ssh-agent"     org.opencontainers.image.licenses="MIT"
+ ---> Using cache
+ ---> 7aca7e36e98d
+Step 44/45 : ENTRYPOINT ["pwsh.exe", "-NoExit", "-File", "C:/ProgramData/Jenkins/setup-sshd.ps1"]
+ ---> Using cache
+ ---> e2895b4ae7e8
+Step 45/45 : LABEL com.docker.compose.image.builder=classic
+ ---> Using cache
+ ---> f3dac9b97db0
+Successfully built f3dac9b97db0
+Successfully tagged jenkins/ssh-agent:nanoserver-ltsc2022-jdk25
+ Service nanoserver-ltsc2022_jdk25  Built
+ nanoserver-ltsc2022_jdk25  Built
+= BUILD: Finished building all images.
+Build finished successfully
+
+============================================================
+TEST   image_type=nanoserver-ltsc2022  java_release=25
+============================================================
+= PREPARE: Initialize the docker compose file 'build-windows.yaml' containing the image definitions.
+= PREPARE: Docker compose file generation command
+ docker buildx bake --progress=plain --file=docker-bake.hcl nanoserver --print | yq --prettyPrint '.target[] | del(.output) | {(. | key): {\"image\": .tags[0], \"build\": .}}' | yq '{\"services\": .}' | Out-File -FilePath build-windows.yaml
+#1 [internal] load local bake definitions
+#1 reading docker-bake.hcl 6.92kB / 6.92kB done
+#1 DONE 0.0s
+= PREPARE: List of images and tags to be processed:
+name: docker-ssh-agent
+services:
+  nanoserver-ltsc2022_jdk25:
+    build:
+      context: C:\docker-ssh-agent
+      dockerfile: windows/nanoserver/Dockerfile
+      args:
+        JAVA_RELEASE: "25"
+        WINDOWS_VERSION_TAG: ltsc2022
+      tags:
+        - docker.io/jenkins/ssh-agent:nanoserver-ltsc2022-jdk25
+      platforms:
+        - windows/amd64
+    image: docker.io/jenkins/ssh-agent:nanoserver-ltsc2022-jdk25
+    networks:
+      default: null
+networks:
+  default:
+    name: docker-ssh-agent_default
+= TEST: Starting test harness
+= TEST: Setting up Pester environment...
+= TEST: Testing all images...
+= TEST: Testing jenkins/ssh-agent:nanoserver-ltsc2022-jdk25 image
+[95mPester v6.1.0[0m
+[95m
+[95mRunning tests from 1 files.[0m
+[30m[45mDiscovery: Discovering tests in sshAgent.Tests.ps1 [0m
+= TESTS: Preparing jenkins/ssh-agent:nanoserver-ltsc2022-jdk25
+[30m[45mDiscovery: Found 10 tests in 556ms [0m
+[95m
+[95mRunning tests from 'C:\docker-ssh-agent\tests\sshAgent.Tests.ps1'[0m
+[92mDescribing [nanoserver-ltsc2022-jdk25] image has setup-sshd.ps1 in the correct location[0m
+[32m  [+] has setup-sshd.ps1 in C:/ProgramData/Jenkins[0m[90m 683ms[0m
+[0m
+[92mDescribing [nanoserver-ltsc2022-jdk25] image has no pre-existing SSH host keys[0m
+[cmd] docker exec pester-jenkins-ssh-agent-nanoserver-ltsc2022-jdk25 pwsh.exe -C "if(Test-Path C:/ProgramData/ssh/ssh_host*_key*) { exit 0 } else { exit 1 }"
+[stdout] 
+[stderr] 
+[32m  [+] has has no SSH host key present in C:\ProgramData\ssh[0m[90m 485ms[0m
+[0m
+[92mDescribing [nanoserver-ltsc2022-jdk25] checking image metadata[0m
+[32m  [+] has correct volumes[0m[90m 85ms[0m
+[32m  [+] has the source GitHub URL in docker metadata[0m[90m 98ms[0m
+[0m
+[92mDescribing [nanoserver-ltsc2022-jdk25] image has expected tools versions installed and in the PATH[0m
+[32m  [+] has expected java installed and in the path[0m[90m 1.22s[0m
+[32m  [+] has expected git-lfs (and thus git) installed and in the path[0m[90m 967ms[0m
+[32m  [+] has expected pwsh installed and in the path[0m[90m 396ms[0m
+[0m
+[92mDescribing [nanoserver-ltsc2022-jdk25] create agent container with pubkey as argument[0m
