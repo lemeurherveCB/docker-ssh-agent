@@ -178,42 +178,51 @@ Describe "[$global:IMAGE_TAG] create agent container like docker-plugin with '$g
     }
 }
 
-## Commented out due to flakiness. TODO: re-enable and find why.
-# Describe "[$global:IMAGE_TAG] image can be built" {
-#     It 'builds image' {
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"JAVA_RELEASE=${global:JAVARELEASE}`" --tag=${global:IMAGE_TAG} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
-#         $exitCode | Should -Be 0
-#     }
-# }
-## Commented out due to flakiness. TODO: re-enable and find why.
-# Describe "[$global:IMAGE_TAG] image can be built with custom build args" {
-#     BeforeAll {
-#         Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
-#     }
-# 
-#     It 'uses build args correctly' {
-#         $TEST_USER = 'testuser'
-#         $TEST_JAW = 'C:/hamster'
-#         $CUSTOM_IMAGE_NAME = "custom-${IMAGE_NAME}"
-# 
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"JAVA_RELEASE=${global:JAVARELEASE}`" --build-arg `"user=$TEST_USER`" --build-arg `"JENKINS_AGENT_WORK=$TEST_JAW`" --tag=$CUSTOM_IMAGE_NAME --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
-#         $exitCode | Should -Be 0
-# 
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=$global:CONTAINERNAME --publish-all $CUSTOM_IMAGE_NAME $global:CONTAINERSHELL"
-#         $exitCode | Should -Be 0
-#         Is-ContainerRunning "$global:CONTAINERNAME" | Should -BeTrue
-# 
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME net user $TEST_USER"
-#         $exitCode | Should -Be 0
-#         $stdout | Should -Match "User name\s*$TEST_USER"
-# 
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"(Get-ChildItem env:\ | Where-Object { `$_.Name -eq 'JENKINS_AGENT_WORK' }).Value`""
-#         $exitCode | Should -Be 0
-#         $stdout.Trim() | Should -Match "$TEST_JAW"
-#     }
-# 
-#     AfterAll {
-#         Cleanup($global:CONTAINERNAME)
-#         Pop-Location -StackName 'agent'
-#     }
-# }
+Describe "[$global:IMAGE_TAG] image can be built" {
+    BeforeAll {
+        Push-Location -StackName 'build-test' -Path "$PSScriptRoot/.."
+    }
+
+    It 'builds image' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"JAVA_RELEASE=${global:JAVARELEASE}`" --tag=${global:IMAGE_TAG} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ." 1800000
+        $exitCode | Should -Be 0
+    }
+
+    AfterAll {
+        Run-Program 'docker' "rmi -f $($global:IMAGE_TAG)" 60000 | Out-Null
+        Pop-Location -StackName 'build-test'
+    }
+}
+
+Describe "[$global:IMAGE_TAG] image can be built with custom build args" {
+    BeforeAll {
+        Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
+    }
+
+    It 'uses build args correctly' {
+        $TEST_USER = 'testuser'
+        $TEST_JAW = 'C:/hamster'
+        $CUSTOM_IMAGE_NAME = "custom-$($global:IMAGE_NAME)"
+
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"JAVA_RELEASE=${global:JAVARELEASE}`" --build-arg `"user=$TEST_USER`" --build-arg `"JENKINS_AGENT_WORK=$TEST_JAW`" --tag=$CUSTOM_IMAGE_NAME --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ." 1800000
+        $exitCode | Should -Be 0
+
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=$global:CONTAINERNAME --publish-all $CUSTOM_IMAGE_NAME $global:CONTAINERSHELL"
+        $exitCode | Should -Be 0
+        Is-ContainerRunning "$global:CONTAINERNAME" | Should -BeTrue
+
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME net user $TEST_USER"
+        $exitCode | Should -Be 0
+        $stdout | Should -Match "User name\s*$TEST_USER"
+
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"(Get-ChildItem env:\ | Where-Object { `$_.Name -eq 'JENKINS_AGENT_WORK' }).Value`""
+        $exitCode | Should -Be 0
+        $stdout.Trim() | Should -Match "$TEST_JAW"
+    }
+
+    AfterAll {
+        Cleanup($global:CONTAINERNAME)
+        Run-Program 'docker' "rmi -f custom-$($global:IMAGE_NAME)" 60000 | Out-Null
+        Pop-Location -StackName 'agent'
+    }
+}

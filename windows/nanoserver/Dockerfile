@@ -55,6 +55,7 @@ ARG JAVA_RELEASE
 ENV JAVA_HOME="C:/openjdk-${JAVA_RELEASE}"
 ENV PSHOME="C:\Program Files\PowerShell"
 ENV PATH="C:\Windows\system32;C:\Windows;${PSHOME};"
+ENV WINDOWS_FLAVOR="nanoserver"
 
 # The nanoserver image is nice and small, but we need a couple of things to get SSH working
 COPY --from=jdk-pwsh /windows/system32/whoami.exe /windows/system32/whoami.exe
@@ -72,6 +73,15 @@ RUN if (!(Test-Path 'C:\Windows\System32\netapi32.dll')) { `
     } else { `
         Remove-Item 'C:\netapi32.dll' `
     }
+
+# nanoserver:ltsc2025 ships with an empty LSA Primary Domain name which breaks
+# LogonUser / S4U token creation with STATUS_NO_SUCH_DOMAIN (0xC00000DF / 1355).
+# LsaSetInformationPolicy is a silent no-op (HKLM\SECURITY has no backing store);
+# the fix writes "WORKGROUP" directly to HKLM\SECURITY\Policy\PolPrDmN as SYSTEM,
+# which requires a throwaway-service bootstrap (ContainerAdministrator is denied).
+# No-op on ltsc2022 (Primary Domain already set). Ref: microsoft/Windows-Containers#640
+COPY ./windows/nanoserver/SetPrimaryDomain.ps1 C:/SetPrimaryDomain.ps1
+RUN C:/SetPrimaryDomain.ps1 ; Remove-Item -Force C:/SetPrimaryDomain.ps1
 
 # Backward compatibility with version <= 5.x: create a symlink to the "new" JAVA_HOME
 RUN $javaMajorVersion = $env:JAVA_HOME.Substring($env:JAVA_HOME.Length - 2); `

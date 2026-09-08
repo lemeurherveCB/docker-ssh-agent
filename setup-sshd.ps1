@@ -106,5 +106,7 @@ Start-Service sshd
 ipconfig
 netstat -a
 
-# aside from forwarding ssh logs, this keeps the container open
+# OpenSSH 9.8+ splits listener (sshd.log) from per-connection (sshd-session.log).
+# Tail both so failures are visible in docker logs. Keep container open.
+Start-Job -ScriptBlock { Get-Content -Path 'C:\ProgramData\ssh\logs\sshd-session.log' -Wait -ErrorAction SilentlyContinue } | Out-Null
 Get-Content -Path "C:\ProgramData\ssh\logs\sshd.log" -Wait
